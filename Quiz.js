@@ -108,7 +108,7 @@ class QuizQuestion {
         origin: location.origin,
         autoplay: 1,
         controls: 1,
-        disablekb: 1,
+        disablekb: 0,
         iv_load_policy: 3,
         modestbranding: 1,
         playsinline: 1,
@@ -119,12 +119,7 @@ class QuizQuestion {
         onReady: (event) => {
           event.target.playVideo();
         },
-        onStateChange: (event) => {
-          // When the video finishes, remove the question element
-          //   if (event.data === YT.PlayerState.ENDED) {
-          //     container.remove();
-          //   }
-        },
+        onStateChange: (event) => {},
       },
     });
 
@@ -132,7 +127,6 @@ class QuizQuestion {
   }
 }
 
-// Component for managing the quiz and displaying the questions
 // Component for managing the quiz and displaying the questions
 class Quiz {
   constructor(quizData) {
