@@ -1,19 +1,26 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>Quiz App</title>
+    <title>Would I Lie To You?</title>
     <script src="https://www.youtube.com/iframe_api"></script>
     <script src="Quiz.js"></script>
+    <!-- Add Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+  </head>
+  <body class="bg-gray-100">
+    <div class="max-w-lg mx-auto py-8">
+      <h1 class="text-3xl font-bold text-center mb-8">Would I Lie To You?</h1>
+      <div id="quiz"></div>
+    </div>
     <script>
       // Load quiz data from quizData.json
       fetch("quizData.json")
         .then((response) => response.json())
         .then((quizData) => {
           const quiz = new Quiz(quizData.questions);
-          document.body.appendChild(quiz.element);
+          document.getElementById("quiz").appendChild(quiz.element);
           quiz.showQuestion();
         });
     </script>
-  </head>
-  <body></body>
+  </body>
 </html>
