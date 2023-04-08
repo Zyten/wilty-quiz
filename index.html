@@ -17,10 +17,18 @@
       fetch("quizData.json")
         .then((response) => response.json())
         .then((quizData) => {
-          const quiz = new Quiz(quizData.questions);
+          const quiz = new Quiz(shuffleArray(quizData.questions));
           document.getElementById("quiz").appendChild(quiz.element);
           quiz.showQuestion();
         });
+
+      function shuffleArray(array) {
+        for (let i = array.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [array[i], array[j]] = [array[j], array[i]];
+        }
+        return array;
+      }
     </script>
   </body>
 </html>
