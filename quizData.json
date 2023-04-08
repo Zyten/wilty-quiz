@@ -1,0 +1,25 @@
+{
+  "questions": [
+    {
+      "title": "I've buried a thousand pounds in cash in a secret location in case I ever have to go on the run.",
+      "videoId": "XX8F-2qLAhs",
+      "options": ["True", "False"],
+      "correctOption": "False",
+      "revealTimestamp": 269
+    },
+    {
+      "title": "Possession: Last year on a visit to the zoo, I put on a mask so that no-one could recognise me. This is that mask.",
+      "videoId": "4BbrQPCKKcE",
+      "options": ["True", "False"],
+      "correctOption": "False",
+      "revealTimestamp": 241
+    },
+    {
+      "title": "Sometimes I pretend to have broken something in my house so that when a man comes round to fix it I can play him at ping-pong.",
+      "videoId": "dx5H1LOofnc",
+      "options": ["True", "False"],
+      "correctOption": "True",
+      "revealTimestamp": 250
+    }
+  ]
+}
