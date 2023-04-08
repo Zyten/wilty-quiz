@@ -209,5 +209,6 @@ class Quiz {
 
     // Remove the quiz element from the page
     this.element.remove();
+    document.getElementById("quiz-results").classList.remove("hidden");
   }
 }
