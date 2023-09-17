@@ -130,7 +130,7 @@ class QuizQuestion {
             // (The API kept returning ~9.7 when hitting play after stopping at 10s)
             if (time + .4 < pausePlayAt) {
               rate = player.getPlaybackRate();
-              remainingTime = (stopPlayAt - time) / rate;
+              remainingTime = (pausePlayAt - time) / rate;
               pausePlayTimer = setTimeout(pauseVideo, remainingTime * 1000, player);
             }
           }
