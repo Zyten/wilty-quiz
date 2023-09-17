@@ -99,6 +99,8 @@ class QuizQuestion {
     });
     container.appendChild(nextButton);
 
+    let pausePlayAt = this.questionData.revealTimestamp
+    let pausePlayTimer;
     // Initialize the YouTube video player
     this.videoPlayer = new YT.Player(playerContainer, {
       height: "100%",
@@ -113,15 +115,32 @@ class QuizQuestion {
         modestbranding: 1,
         playsinline: 1,
         rel: 0,
-        end: this.questionData.revealTimestamp,
       },
       events: {
         onReady: (event) => {
           event.target.playVideo();
         },
-        onStateChange: (event) => {},
+        onStateChange: (event) => {
+          let time, rate, remainingTime;
+          let player = event.target
+          clearTimeout(pausePlayTimer);
+          if (event.data == YT.PlayerState.PLAYING) {
+            time = event.target.getCurrentTime();
+            // Add .4 of a second to the time in case it's close to the current time
+            // (The API kept returning ~9.7 when hitting play after stopping at 10s)
+            if (time + .4 < pausePlayAt) {
+              rate = player.getPlaybackRate();
+              remainingTime = (stopPlayAt - time) / rate;
+              pausePlayTimer = setTimeout(pauseVideo, remainingTime * 1000, player);
+            }
+          }
+        },
       },
     });
+
+    function pauseVideo(player) {
+      player.pauseVideo();
+    }
 
     return container;
   }
