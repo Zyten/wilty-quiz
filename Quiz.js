@@ -27,6 +27,7 @@ class QuizQuestion {
       "w-full",
       "pb-3/4"
     );
+    playerContainer.id = "player-container"
     container.appendChild(playerContainer);
 
     const answerButtonsContainer = document.createElement("div");
@@ -76,6 +77,8 @@ class QuizQuestion {
           document
             .querySelectorAll(".answer-buttons > button")
             .forEach((btn) => btn.classList.remove("hover:bg-neutral-700"));
+
+          YT.get('player-container').playVideo();
         }
       });
       answerButtons.appendChild(button);
@@ -132,6 +135,11 @@ class QuizQuestion {
               rate = player.getPlaybackRate();
               remainingTime = (pausePlayAt - time) / rate;
               pausePlayTimer = setTimeout(pauseVideo, remainingTime * 1000, player);
+            } else if(this.selectedAnswer !== null) {
+              player.playVideo();
+            } else {
+              player.seekTo(pausePlayAt);
+              player.pauseVideo();
             }
           }
         },
