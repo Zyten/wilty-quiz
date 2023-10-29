@@ -16,7 +16,11 @@
               @click="selectAnswer(option, $event)"
               :class="[
                 'btn text-white font-bold m-2 py-2 px-4 rounded',
-                selectedAnswer === option ? (option === currentQuestion.correctOption ? 'bg-green-500' : 'bg-red-500') : 'bg-neutral-500',
+                selectedAnswer === option
+                  ? option === currentQuestion.correctOption
+                    ? 'bg-green-500'
+                    : 'bg-red-500'
+                  : 'bg-neutral-500',
                 !selectedAnswer ? 'hover:bg-neutral-700' : ''
               ]"
             >
@@ -26,18 +30,21 @@
           <button
             v-if="selectedAnswer"
             @click="nextQuestion"
-            :class="['btn-next', selectedAnswer ? '' : 'hidden', 'bg-blue-500 hover:bg-blue-700 text-white p-3 block w-full']"
-            >
+            :class="[
+              'btn-next',
+              selectedAnswer ? '' : 'hidden',
+              'bg-blue-500 hover:bg-blue-700 text-white p-3 block w-full'
+            ]"
+          >
             Next
           </button>
         </div>
         <div v-else>
           <div class="text-center">
-            <h2 class="text-xl font-medium mb-4">You got {{ score }} out of {{ quizLength }} questions correct!</h2>
-            <a
-              href=""
-              class="bg-blue-500 hover:bg-blue-700 text-white p-3 block w-full"
-            >
+            <h2 class="text-xl font-medium mb-4">
+              You got {{ score }} out of {{ quizLength }} questions correct!
+            </h2>
+            <a href="" class="bg-blue-500 hover:bg-blue-700 text-white p-3 block w-full">
               Restart Quiz
             </a>
           </div>
@@ -53,11 +60,11 @@ import quizData from '@/quizData.json'
 
 const xRandomItems = (array, x) => {
   for (let i = array.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [array[i], array[j]] = [array[j], array[i]];
+    const j = Math.floor(Math.random() * (i + 1))
+    ;[array[i], array[j]] = [array[j], array[i]]
   }
-  return array.slice(0, x);
-};
+  return array.slice(0, x)
+}
 
 const quizLength = ref(5)
 const quizQuestions = ref(xRandomItems(quizData.questions, quizLength.value))
@@ -66,9 +73,7 @@ const currentQuestion = ref(quizQuestions.value[currentQuestionIndex.value])
 const selectedAnswer = ref(null)
 const score = ref(0)
 
-
-
-const selectAnswer = (option, event) => {
+const selectAnswer = (option) => {
   selectedAnswer.value = option
   if (option === currentQuestion.value.correctOption) {
     score.value++
@@ -83,7 +88,7 @@ const nextQuestion = () => {
     currentQuestion.value = quizQuestions.value[currentQuestionIndex.value]
     selectedAnswer.value = null
     if (videoPlayer) {
-      videoPlayer.loadVideoById(currentQuestion.value.videoId);
+      videoPlayer.loadVideoById(currentQuestion.value.videoId)
     }
   } else {
     currentQuestion.value = null
@@ -91,12 +96,12 @@ const nextQuestion = () => {
 }
 
 // Initialize YouTube player
-let videoPlayer = null;
-const pausePlayTimer = ref(null);
+let videoPlayer = null
+const pausePlayTimer = ref(null)
 
 const pauseVideo = (player) => {
-  player.pauseVideo();
-};
+  player.pauseVideo()
+}
 
 onMounted(() => {
   videoPlayer = new YT.Player('player-container', {
@@ -111,33 +116,32 @@ onMounted(() => {
       iv_load_policy: 3,
       modestbranding: 1,
       playsinline: 1,
-      rel: 0,
+      rel: 0
     },
     events: {
       onReady: (event) => {
-        event.target.playVideo();
+        event.target.playVideo()
       },
       onStateChange: (event) => {
-        let time, rate, remainingTime;
-        let player = event.target;
-        clearTimeout(pausePlayTimer.value);
+        let time, rate, remainingTime
+        let player = event.target
+        clearTimeout(pausePlayTimer.value)
         if (event.data == YT.PlayerState.PLAYING) {
-          time = player.getCurrentTime();
-          let pausePlayAt = currentQuestion.value.revealTimestamp;
+          time = player.getCurrentTime()
+          let pausePlayAt = currentQuestion.value.revealTimestamp
           if (time + 0.4 < pausePlayAt) {
-            rate = player.getPlaybackRate();
-            remainingTime = (pausePlayAt - time) / rate;
-            pausePlayTimer.value = setTimeout(() => pauseVideo(player), remainingTime * 1000);
+            rate = player.getPlaybackRate()
+            remainingTime = (pausePlayAt - time) / rate
+            pausePlayTimer.value = setTimeout(() => pauseVideo(player), remainingTime * 1000)
           } else if (selectedAnswer.value !== null) {
-            player.playVideo();
+            player.playVideo()
           } else {
-            player.seekTo(pausePlayAt);
-            player.pauseVideo();
+            player.seekTo(pausePlayAt)
+            player.pauseVideo()
           }
         }
-      },
-    },
-  });
-});
-
+      }
+    }
+  })
+})
 </script>
