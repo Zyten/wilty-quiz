@@ -104,44 +104,46 @@ const pauseVideo = (player) => {
 }
 
 onMounted(() => {
-  videoPlayer = new YT.Player('player-container', {
-    height: '100%',
-    width: '100%',
-    videoId: currentQuestion.value.videoId,
-    playerVars: {
-      origin: location.origin,
-      autoplay: 1,
-      controls: 1,
-      disablekb: 0,
-      iv_load_policy: 3,
-      modestbranding: 1,
-      playsinline: 1,
-      rel: 0
-    },
-    events: {
-      onReady: (event) => {
-        event.target.playVideo()
+  window.YT.ready(function () {
+    videoPlayer = new YT.Player('player-container', {
+      height: '100%',
+      width: '100%',
+      videoId: currentQuestion.value.videoId,
+      playerVars: {
+        origin: location.origin,
+        autoplay: 1,
+        controls: 1,
+        disablekb: 0,
+        iv_load_policy: 3,
+        modestbranding: 1,
+        playsinline: 1,
+        rel: 0
       },
-      onStateChange: (event) => {
-        let time, rate, remainingTime
-        let player = event.target
-        clearTimeout(pausePlayTimer.value)
-        if (event.data == YT.PlayerState.PLAYING) {
-          time = player.getCurrentTime()
-          let pausePlayAt = currentQuestion.value.revealTimestamp
-          if (time + 0.4 < pausePlayAt) {
-            rate = player.getPlaybackRate()
-            remainingTime = (pausePlayAt - time) / rate
-            pausePlayTimer.value = setTimeout(() => pauseVideo(player), remainingTime * 1000)
-          } else if (selectedAnswer.value !== null) {
-            player.playVideo()
-          } else {
-            player.seekTo(pausePlayAt)
-            player.pauseVideo()
+      events: {
+        onReady: (event) => {
+          event.target.playVideo()
+        },
+        onStateChange: (event) => {
+          let time, rate, remainingTime
+          let player = event.target
+          clearTimeout(pausePlayTimer.value)
+          if (event.data == YT.PlayerState.PLAYING) {
+            time = player.getCurrentTime()
+            let pausePlayAt = currentQuestion.value.revealTimestamp
+            if (time + 0.4 < pausePlayAt) {
+              rate = player.getPlaybackRate()
+              remainingTime = (pausePlayAt - time) / rate
+              pausePlayTimer.value = setTimeout(() => pauseVideo(player), remainingTime * 1000)
+            } else if (selectedAnswer.value !== null) {
+              player.playVideo()
+            } else {
+              player.seekTo(pausePlayAt)
+              player.pauseVideo()
+            }
           }
         }
       }
-    }
+    })
   })
 })
 </script>
