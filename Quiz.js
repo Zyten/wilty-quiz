@@ -121,9 +121,11 @@ class QuizQuestion {
       },
       events: {
         onReady: (event) => {
+          setReadablePlayerState(event.target.getPlayerState());
           event.target.playVideo();
         },
         onStateChange: (event) => {
+          setReadablePlayerState(event.target.getPlayerState());
           let time, rate, remainingTime;
           let player = event.target
           clearTimeout(pausePlayTimer);
@@ -231,5 +233,28 @@ class Quiz {
     // Remove the quiz element from the page
     this.element.remove();
     document.getElementById("quiz-results").classList.remove("hidden");
+  }
+}
+
+function setReadablePlayerState(YT_PlayerState) {
+  window.playerState = getReadablePlayerState(YT_PlayerState);
+}
+
+function getReadablePlayerState(YT_PlayerState) {
+  switch (YT_PlayerState) {
+    case (1):
+      return "PLAYING";
+    case (2):
+      return "PAUSED";
+    case (3):
+      return "BUFFERING";
+    case (5):
+      return "CUED";
+    case (0):
+      return "ENDED";
+    case (-1):
+      return "UNSTARTED";
+    default:
+      return "INVALID";
   }
 }
