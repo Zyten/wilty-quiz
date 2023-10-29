@@ -1,49 +1,17 @@
-<!DOCTYPE html>
-<html>
+<!doctype html>
+<html lang="en">
   <head>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Would I Lie To You?</title>
 
-    <link rel="apple-touch-icon" sizes="180x180" href="assets/favicon/apple-touch-icon.png">
-    <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon/favicon-32x32.png">
-    <link rel="icon" type="image/png" sizes="16x16" href="assets/favicon/favicon-16x16.png">
-    <link rel="manifest" href="assets/favicon/site.webmanifest">
-
-    <script src="https://www.youtube.com/iframe_api"></script>
-    <script src="Quiz.js"></script>
-    <!-- Add Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="apple-touch-icon" sizes="180x180" href="assets/favicon/apple-touch-icon.png" />
+    <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon/favicon-32x32.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="assets/favicon/favicon-16x16.png" />
+    <link rel="manifest" href="assets/favicon/site.webmanifest" />
   </head>
   <body class="bg-gray-100">
-    <div class="max-w-lg mx-auto py-8 px-4 sm:px-6 lg:px-8">
-      <h1 class="text-3xl font-bold text-center mb-8">Would I Lie To You?</h1>
-      <div id="quiz"></div>
-      <div id="quiz-results" class="hidden">
-        <a
-          href=""
-          id="btn-restart"
-          class="bg-blue-500 hover:bg-blue-700 text-white p-3 block w-full text-center">
-          Restart Quiz
-        </a>
-      </div>
-    </div>
-    <script>
-      // Load quiz data from quizData.json
-      fetch("quizData.json")
-        .then((response) => response.json())
-        .then((quizData) => {
-          const quiz = new Quiz(xRandomItems(quizData.questions, 5));
-          document.getElementById("quiz").appendChild(quiz.element);
-          quiz.showQuestion();
-        });
-
-      function xRandomItems(array, x) {
-        for (let i = array.length - 1; i > 0; i--) {
-          const j = Math.floor(Math.random() * (i + 1));
-          [array[i], array[j]] = [array[j], array[i]];
-        }
-        return array.slice(0, x);
-      }
-    </script>
+    <div id="app"></div>
+    <script src="https://www.youtube.com/iframe_api"></script>
+    <script type="module" src="/src/main.ts"></script>
   </body>
 </html>
