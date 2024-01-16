@@ -1,9 +1,12 @@
 <template>
   <div>
     <div class="quiz">
-      <div class="question-container mt-5">
+      <div v-if="isLoading" class="loading-state">Loading quiz data...</div>
+      <div v-else class="question-container mt-5">
         <div v-if="currentQuestion" class="quiz-question my-8">
-          <h2 class="text-xl font-medium mb-4">{{ currentQuestion.title }}</h2>
+          <h2 class="text-xl font-medium mb-4">
+            {{ currentQuestion.orator }}: "{{ currentQuestion.statement }}"
+          </h2>
           <div
             id="player-container"
             class="player-container mb-4 relative h-72 w-full pb-3/4"
@@ -56,7 +59,64 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
-import quizData from '@/quizData.json'
+import { GoogleSpreadsheet } from 'google-spreadsheet'
+import { QuizData } from '@/types/quiz-data.type'
+import { version } from '../../package.json'
+
+const appVersion = version
+console.info('Wilty Quiz v' + version)
+
+const gSheetId = import.meta.env.VITE_GSHEET_ID
+const gSheetApiKey = import.meta.env.VITE_GSHEET_API_KEY
+
+const isLoading = ref(true)
+const quizData = ref({
+  questions: []
+})
+
+async function loadQuizData() {
+  const oneday = 60 * 60 * 24 * 1000
+  const cacheKey = 'wilty-quiz-data'
+  const cachedData = JSON.parse(localStorage.getItem(cacheKey))
+  const cacheValid =
+    cachedData && cachedData.version === appVersion && Date.now() - cachedData.timestamp < oneday
+
+  if (cacheValid) {
+    console.warn('Loading from cache')
+    console.info('Next update on ' + new Date(oneday + cachedData.timestamp) + ')')
+    quizData.value.questions = cachedData.questions
+  } else {
+    try {
+      const doc = new GoogleSpreadsheet(gSheetId, {
+        apiKey: gSheetApiKey
+      })
+      await doc.loadInfo()
+      const sheet = doc.sheetsByIndex[0]
+      const rows = await sheet.getRows<QuizData>()
+      quizData.value.questions = rows.map((row) => {
+        const rowData = row.toObject()
+        return {
+          ...rowData,
+          options: rowData.options.split(',').map((option) => option.trim())
+        }
+      })
+      localStorage.setItem(
+        cacheKey,
+        JSON.stringify({
+          timestamp: Date.now(),
+          version: appVersion,
+          questions: quizData.value.questions
+        })
+      )
+    } catch (error) {
+      console.error('Failed to load quiz data:', error)
+    }
+  }
+
+  quizQuestions.value = xRandomItems(quizData.value.questions, quizLength.value)
+  currentQuestion.value = quizQuestions.value[currentQuestionIndex.value]
+  isLoading.value = false
+}
 
 const xRandomItems = (array, x) => {
   for (let i = array.length - 1; i > 0; i--) {
@@ -67,9 +127,9 @@ const xRandomItems = (array, x) => {
 }
 
 const quizLength = ref(5)
-const quizQuestions = ref(xRandomItems(quizData.questions, quizLength.value))
+const quizQuestions = ref()
 const currentQuestionIndex = ref(0)
-const currentQuestion = ref(quizQuestions.value[currentQuestionIndex.value])
+const currentQuestion = ref()
 const selectedAnswer = ref(null)
 const score = ref(0)
 
@@ -104,45 +164,47 @@ const pauseVideo = (player) => {
 }
 
 onMounted(() => {
-  window.YT.ready(function () {
-    videoPlayer = new YT.Player('player-container', {
-      height: '100%',
-      width: '100%',
-      videoId: currentQuestion.value.videoId,
-      playerVars: {
-        origin: location.origin,
-        autoplay: 1,
-        controls: 1,
-        disablekb: 0,
-        iv_load_policy: 3,
-        modestbranding: 1,
-        playsinline: 1,
-        rel: 0
-      },
-      events: {
-        onReady: (event) => {
-          event.target.playVideo()
+  loadQuizData().then(() => {
+    window.YT.ready(function () {
+      videoPlayer = new YT.Player('player-container', {
+        height: '100%',
+        width: '100%',
+        videoId: currentQuestion.value.videoId,
+        playerVars: {
+          origin: location.origin,
+          autoplay: 1,
+          controls: 1,
+          disablekb: 0,
+          iv_load_policy: 3,
+          modestbranding: 1,
+          playsinline: 1,
+          rel: 0
         },
-        onStateChange: (event) => {
-          let time, rate, remainingTime
-          let player = event.target
-          clearTimeout(pausePlayTimer.value)
-          if (event.data == YT.PlayerState.PLAYING) {
-            time = player.getCurrentTime()
-            let pausePlayAt = currentQuestion.value.revealTimestamp
-            if (time + 0.4 < pausePlayAt) {
-              rate = player.getPlaybackRate()
-              remainingTime = (pausePlayAt - time) / rate
-              pausePlayTimer.value = setTimeout(() => pauseVideo(player), remainingTime * 1000)
-            } else if (selectedAnswer.value !== null) {
-              player.playVideo()
-            } else {
-              player.seekTo(pausePlayAt)
-              player.pauseVideo()
+        events: {
+          onReady: (event) => {
+            event.target.playVideo()
+          },
+          onStateChange: (event) => {
+            let time, rate, remainingTime
+            let player = event.target
+            clearTimeout(pausePlayTimer.value)
+            if (event.data == YT.PlayerState.PLAYING) {
+              time = player.getCurrentTime()
+              let pausePlayAt = currentQuestion.value.revealTimestamp
+              if (time + 0.4 < pausePlayAt) {
+                rate = player.getPlaybackRate()
+                remainingTime = (pausePlayAt - time) / rate
+                pausePlayTimer.value = setTimeout(() => pauseVideo(player), remainingTime * 1000)
+              } else if (selectedAnswer.value !== null) {
+                player.playVideo()
+              } else {
+                player.seekTo(pausePlayAt)
+                player.pauseVideo()
+              }
             }
           }
         }
-      }
+      })
     })
   })
 })

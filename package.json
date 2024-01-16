@@ -1,6 +1,6 @@
 {
   "name": "wilty-quiz",
-  "version": "0.0.0",
+  "version": "0.1.7",
   "private": true,
   "scripts": {
     "dev": "vite",
@@ -13,6 +13,7 @@
     "deploy": "npm run build-only && gh-pages -d dist"
   },
   "dependencies": {
+    "google-spreadsheet": "^4.1.1",
     "playwright": "^1.39.0",
     "vue": "^3.3.4"
   },
