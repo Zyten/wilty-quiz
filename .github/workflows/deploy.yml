@@ -19,8 +19,8 @@ jobs:
       - name: Build
         run: npm run build-only
         env:
-          VUE_APP_MYSHEETURL: ${{ secrets.GSHEET_ID }}
-          VUE_APP_MYAPIKEY: ${{ secrets.GSHEET_API_KEY }}
+          VITE_GSHEET_ID: ${{ secrets.GSHEET_ID }}
+          VITE_GSHEET_API_KEY: ${{ secrets.GSHEET_API_KEY }}
 
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
