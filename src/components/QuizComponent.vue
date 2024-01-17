@@ -67,7 +67,8 @@ const appVersion = version
 console.info('Wilty Quiz v' + version)
 
 const gSheetId = import.meta.env.VITE_GSHEET_ID
-const gSheetApiKey = import.meta.env.VITE_GSHEET_API_KEY
+const cloudflareWorkerUrl = import.meta.env.VITE_CLOUDFLARE_WORKER_URL
+console.log('Source = https://docs.google.com/spreadsheets/d/' + gSheetId)
 
 const isLoading = ref(true)
 const quizData = ref({
@@ -87,19 +88,19 @@ async function loadQuizData() {
     quizData.value.questions = cachedData.questions
   } else {
     try {
-      const doc = new GoogleSpreadsheet(gSheetId, {
-        apiKey: gSheetApiKey
-      })
-      await doc.loadInfo()
-      const sheet = doc.sheetsByIndex[0]
-      const rows = await sheet.getRows<QuizData>()
-      quizData.value.questions = rows.map((row) => {
-        const rowData = row.toObject()
-        return {
-          ...rowData,
-          options: rowData.options.split(',').map((option) => option.trim())
+      const response = await fetch(cloudflareWorkerUrl, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json'
         }
       })
+      if (!response.ok) {
+        throw new Error(`Error calling Cloudflare Worker: ${response.statusText}`)
+      }
+
+      const rows = await response.json()
+      quizData.value.questions = rows
+
       localStorage.setItem(
         cacheKey,
         JSON.stringify({
