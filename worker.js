@@ -48,7 +48,10 @@ async function handleGetRequest(request, env, corsHeaders) {
   } catch (error) {
     return new Response('Error fetching data: ' + error.message, {
       status: 500,
-      headers: corsHeaders
+      headers: {
+        'Content-Type': 'application/json',
+        ...corsHeaders
+      }
     })
   }
 }

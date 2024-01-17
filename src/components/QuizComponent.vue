@@ -59,16 +59,17 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
-import { GoogleSpreadsheet } from 'google-spreadsheet'
-import { QuizData } from '@/types/quiz-data.type'
 import { version } from '../../package.json'
 
 const appVersion = version
 console.info('Wilty Quiz v' + version)
 
 const gSheetId = import.meta.env.VITE_GSHEET_ID
-const cloudflareWorkerUrl = import.meta.env.VITE_CLOUDFLARE_WORKER_URL
-console.log('Source = https://docs.google.com/spreadsheets/d/' + gSheetId)
+//const cloudflareWorkerUrl = import.meta.env.VITE_CLOUDFLARE_WORKER_URL
+//For some reason, this doesn't get pulled from Github Secrets so hardcoding for now
+const cloudflareWorkerUrl = 'https://wilty-quiz.sruban707.workers.dev'
+console.log('Source: https://docs.google.com/spreadsheets/d/' + gSheetId)
+console.log('Loaded via: ' + cloudflareWorkerUrl)
 
 const isLoading = ref(true)
 const quizData = ref({
@@ -94,12 +95,21 @@ async function loadQuizData() {
           'Content-Type': 'application/json'
         }
       })
+
       if (!response.ok) {
         throw new Error(`Error calling Cloudflare Worker: ${response.statusText}`)
       }
 
-      const rows = await response.json()
-      quizData.value.questions = rows
+      // Check if the response is JSON
+      const contentType = response.headers.get('Content-Type')
+      if (!contentType || !contentType.includes('application/json')) {
+        // Read the response as text and log it
+        const textResponse = await response.text()
+        console.error('Unexpected response:', textResponse)
+        throw new Error('Invalid content type, expected JSON')
+      }
+
+      quizData.value.questions = await response.json()
 
       localStorage.setItem(
         cacheKey,
