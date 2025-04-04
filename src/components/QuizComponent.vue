@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div class="quiz">
+    <div class="quiz max-w-7xl mx-auto">
       <!-- Loading State with Skeleton UI -->
       <div v-if="isLoading" class="animate-pulse">
         <div class="lg:grid lg:grid-cols-2 lg:gap-8">
@@ -19,6 +19,22 @@
       </div>
 
       <div v-else class="question-container">
+        <!-- Progress Indicators - Outside grid -->
+        <div class="flex justify-center mb-6">
+          <div
+            v-for="index in quizLength"
+            :key="index"
+            class="w-3 h-3 rounded mx-1 text-center text-xs flex items-center justify-center"
+            :class="[
+              index - 1 < currentQuestionIndex
+                ? answerHistory[index - 1]
+                  ? 'bg-green-300'
+                  : 'bg-red-300'
+                : 'bg-gray-200'
+            ]"
+          ></div>
+        </div>
+
         <div v-if="currentQuestion" class="lg:grid lg:grid-cols-2 lg:gap-8">
           <!-- Video Section -->
           <div class="video-section mb-8 lg:mb-0">
@@ -37,11 +53,10 @@
 
           <!-- Question and Answers Section -->
           <div class="quiz-content flex flex-col">
-            <div class="mb-6 space-y-2">
-              <h2 class="text-xl md:text-2xl font-medium text-gray-800 leading-relaxed">
+            <div class="border-4 border-gray-400 p-3 w-full rounded-lg shadow-xl flex items-center justify-center md:p-5 mb-6">
+              <h2 class="text-center font-medium md:text-lg text-gray-600">
                 {{ currentQuestion.orator }}: "{{ currentQuestion.statement }}"
               </h2>
-              <p class="text-sm text-gray-500">Select your answer to see the full clip</p>
             </div>
 
             <div class="answer-buttons-container flex-grow">
@@ -98,6 +113,15 @@
     </div>
   </div>
 </template>
+
+<style scoped>
+@media only screen and (max-width: 800px) {
+  .min-h-screen {
+    /* 92vh to make up for the toolbar in the mobile browser */
+    min-height: 92vh;
+  }
+}
+</style>
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
@@ -186,12 +210,17 @@ const currentQuestion = ref()
 const selectedAnswer = ref(null)
 const score = ref(0)
 
+// Add answer history tracking
+const answerHistory = ref<boolean[]>([])
+
 const selectAnswer = (option) => {
   selectedAnswer.value = option
-  if (option === currentQuestion.value.correctOption) {
+  const isCorrect = option === currentQuestion.value.correctOption
+  if (isCorrect) {
     score.value++
   }
-
+  // Record the answer result
+  answerHistory.value[currentQuestionIndex.value] = isCorrect
   videoPlayer.playVideo()
 }
 
