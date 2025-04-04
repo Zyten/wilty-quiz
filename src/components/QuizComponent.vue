@@ -1,56 +1,74 @@
 <template>
   <div>
     <div class="quiz">
-      <div v-if="isLoading" class="loading-state">Loading quiz data...</div>
-      <div v-else class="question-container mt-5">
-        <div v-if="currentQuestion" class="quiz-question my-8">
-          <h2 class="text-xl font-medium mb-4">
-            {{ currentQuestion.orator }}: "{{ currentQuestion.statement }}"
-          </h2>
-          <div
-            id="player-container"
-            class="player-container mb-4 relative h-72 w-full pb-3/4"
-          ></div>
-          <div class="answer-buttons-container flex flex-wrap justify-center mb-4">
-            <button
-              v-for="option in currentQuestion.options"
-              :key="option"
-              :disabled="selectedAnswer"
-              @click="selectAnswer(option, $event)"
-              :class="[
-                'btn text-white font-bold m-2 py-2 px-4 rounded',
-                selectedAnswer === option
-                  ? option === currentQuestion.correctOption
-                    ? 'bg-green-500'
-                    : 'bg-red-500'
-                  : 'bg-neutral-500',
-                !selectedAnswer ? 'hover:bg-neutral-700' : ''
-              ]"
-            >
-              {{ option }}
-            </button>
+      <div v-if="isLoading" class="flex items-center justify-center min-h-[400px]">
+        <div class="text-lg">Loading quiz data...</div>
+      </div>
+      <div v-else class="question-container">
+        <div v-if="currentQuestion" class="lg:grid lg:grid-cols-2 lg:gap-8">
+          <!-- Video Section -->
+          <div class="video-section mb-6 lg:mb-0">
+            <div 
+              id="player-container" 
+              class="relative w-full aspect-video rounded-lg overflow-hidden shadow-lg"
+            ></div>
           </div>
-          <button
-            v-if="selectedAnswer"
-            @click="nextQuestion"
-            :class="[
-              'btn-next',
-              selectedAnswer ? '' : 'hidden',
-              'bg-blue-500 hover:bg-blue-700 text-white p-3 block w-full'
-            ]"
-          >
-            Next
-          </button>
-        </div>
-        <div v-else>
-          <div class="text-center">
-            <h2 class="text-xl font-medium mb-4">
-              You got {{ score }} out of {{ quizLength }} questions correct!
+
+          <!-- Question and Answers Section -->
+          <div class="quiz-content flex flex-col">
+            <h2 class="text-xl md:text-2xl font-medium mb-6 text-gray-800">
+              {{ currentQuestion.orator }}: "{{ currentQuestion.statement }}"
             </h2>
-            <a href="" class="bg-blue-500 hover:bg-blue-700 text-white p-3 block w-full">
-              Restart Quiz
-            </a>
+
+            <div class="answer-buttons-container flex-grow">
+              <div class="grid grid-cols-1 gap-3 md:gap-4">
+                <button
+                  v-for="option in currentQuestion.options"
+                  :key="option"
+                  :disabled="selectedAnswer"
+                  @click="selectAnswer(option, $event)"
+                  :class="[
+                    'w-full text-left px-6 py-4 rounded-lg font-medium transition-colors duration-200',
+                    'flex items-center',
+                    selectedAnswer === option
+                      ? option === currentQuestion.correctOption
+                        ? 'bg-green-100 text-green-800 border-2 border-green-500'
+                        : 'bg-red-100 text-red-800 border-2 border-red-500'
+                      : 'bg-white text-gray-700 border-2 border-gray-200 hover:border-gray-300 hover:bg-gray-50',
+                    !selectedAnswer ? 'cursor-pointer' : 'cursor-default'
+                  ]"
+                >
+                  {{ option }}
+                </button>
+              </div>
+            </div>
+
+            <div class="mt-6">
+              <button
+                v-if="selectedAnswer"
+                @click="nextQuestion"
+                class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-4 px-6 rounded-lg transition-colors duration-200"
+              >
+                Next Question
+              </button>
+            </div>
           </div>
+        </div>
+
+        <!-- Quiz Complete Screen -->
+        <div v-else class="text-center max-w-2xl mx-auto">
+          <h2 class="text-2xl font-bold mb-6 text-gray-800">
+            Quiz Complete!
+          </h2>
+          <p class="text-xl mb-8">
+            You got {{ score }} out of {{ quizLength }} questions correct!
+          </p>
+          <a 
+            href="" 
+            class="inline-block bg-blue-600 hover:bg-blue-700 text-white font-medium py-4 px-8 rounded-lg transition-colors duration-200"
+          >
+            Try Again
+          </a>
         </div>
       </div>
     </div>
