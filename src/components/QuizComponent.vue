@@ -1,24 +1,48 @@
 <template>
   <div>
     <div class="quiz">
-      <div v-if="isLoading" class="flex items-center justify-center min-h-[400px]">
-        <div class="text-lg">Loading quiz data...</div>
+      <!-- Loading State with Skeleton UI -->
+      <div v-if="isLoading" class="animate-pulse">
+        <div class="lg:grid lg:grid-cols-2 lg:gap-8">
+          <div class="mb-6 lg:mb-0">
+            <div class="bg-gray-200 aspect-video rounded-lg w-full"></div>
+          </div>
+          <div>
+            <div class="h-8 bg-gray-200 rounded w-3/4 mb-6"></div>
+            <div class="space-y-4">
+              <div class="h-16 bg-gray-200 rounded"></div>
+              <div class="h-16 bg-gray-200 rounded"></div>
+              <div class="h-16 bg-gray-200 rounded"></div>
+            </div>
+          </div>
+        </div>
       </div>
+
       <div v-else class="question-container">
         <div v-if="currentQuestion" class="lg:grid lg:grid-cols-2 lg:gap-8">
           <!-- Video Section -->
-          <div class="video-section mb-6 lg:mb-0">
-            <div 
-              id="player-container" 
-              class="relative w-full aspect-video rounded-lg overflow-hidden shadow-lg"
-            ></div>
+          <div class="video-section mb-8 lg:mb-0">
+            <div class="bg-gray-900 rounded-lg p-2 shadow-lg">
+              <div 
+                id="player-container" 
+                class="relative w-full aspect-video rounded overflow-hidden"
+              ></div>
+              <div class="mt-2 px-2">
+                <div class="text-gray-400 text-sm">
+                  {{ selectedAnswer ? 'Playing full clip...' : 'Video paused at reveal point' }}
+                </div>
+              </div>
+            </div>
           </div>
 
           <!-- Question and Answers Section -->
           <div class="quiz-content flex flex-col">
-            <h2 class="text-xl md:text-2xl font-medium mb-6 text-gray-800">
-              {{ currentQuestion.orator }}: "{{ currentQuestion.statement }}"
-            </h2>
+            <div class="mb-6 space-y-2">
+              <h2 class="text-xl md:text-2xl font-medium text-gray-800 leading-relaxed">
+                {{ currentQuestion.orator }}: "{{ currentQuestion.statement }}"
+              </h2>
+              <p class="text-sm text-gray-500">Select your answer to see the full clip</p>
+            </div>
 
             <div class="answer-buttons-container flex-grow">
               <div class="grid grid-cols-1 gap-3 md:gap-4">
@@ -28,13 +52,13 @@
                   :disabled="selectedAnswer"
                   @click="selectAnswer(option, $event)"
                   :class="[
-                    'w-full text-left px-6 py-4 rounded-lg font-medium transition-colors duration-200',
+                    'w-full text-left px-6 py-4 rounded-lg font-medium transition-all duration-200',
                     'flex items-center',
                     selectedAnswer === option
                       ? option === currentQuestion.correctOption
-                        ? 'bg-green-100 text-green-800 border-2 border-green-500'
-                        : 'bg-red-100 text-red-800 border-2 border-red-500'
-                      : 'bg-white text-gray-700 border-2 border-gray-200 hover:border-gray-300 hover:bg-gray-50',
+                        ? 'bg-green-100 text-green-800 border-2 border-green-500 shadow-inner'
+                        : 'bg-red-100 text-red-800 border-2 border-red-500 shadow-inner'
+                      : 'bg-white text-gray-700 border-2 border-gray-200 hover:border-gray-300 hover:bg-gray-50 hover:shadow-md',
                     !selectedAnswer ? 'cursor-pointer' : 'cursor-default'
                   ]"
                 >
@@ -43,11 +67,11 @@
               </div>
             </div>
 
-            <div class="mt-6">
+            <div class="mt-6 sm:mt-8">
               <button
                 v-if="selectedAnswer"
                 @click="nextQuestion"
-                class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-4 px-6 rounded-lg transition-colors duration-200"
+                class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-4 px-6 rounded-lg transition-all duration-200 hover:shadow-lg"
               >
                 Next Question
               </button>
@@ -56,16 +80,16 @@
         </div>
 
         <!-- Quiz Complete Screen -->
-        <div v-else class="text-center max-w-2xl mx-auto">
-          <h2 class="text-2xl font-bold mb-6 text-gray-800">
+        <div v-else class="text-center py-12 px-4 sm:px-6 lg:px-8 max-w-2xl mx-auto">
+          <h2 class="text-3xl font-bold mb-6 text-gray-800">
             Quiz Complete!
           </h2>
-          <p class="text-xl mb-8">
+          <p class="text-xl mb-8 text-gray-600">
             You got {{ score }} out of {{ quizLength }} questions correct!
           </p>
           <a 
             href="" 
-            class="inline-block bg-blue-600 hover:bg-blue-700 text-white font-medium py-4 px-8 rounded-lg transition-colors duration-200"
+            class="inline-block bg-blue-600 hover:bg-blue-700 text-white font-medium py-4 px-8 rounded-lg transition-all duration-200 hover:shadow-lg"
           >
             Try Again
           </a>
